@@ -26,7 +26,6 @@
         - .vimrc
         - .vimrc_youcompleteme
         - .bashrc
-        - .xinitrc
         - .inputrc
       file:
         state: link
@@ -49,9 +48,11 @@
         virtualenv_python: "python{{ item.0.python }}"
     - name: Deploy templates
       with_items:
-        - .xinitrc
         - src: i3_config
           dest: .config/i3/config
       template:
         src: "templates/{{ item.src|default(item) }}.j2"
         dest: "{{ home ~ '/' ~ item.dest|default(item) }}"
+        mode: "{{ item.mode|default(omit)}}"
+    - name: Reload i3
+      command: i3-msg reload
