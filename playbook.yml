@@ -1,0 +1,57 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    home: /home/alvaro
+    dotfiles_dir: "{{ home }}/.dotfiles"
+    virtualenv_base: "{{ home }}/.venvs"
+    packages:
+      - python3-pip
+    virtualenvs:
+      - name: i3_focus_last
+        packages:
+          - i3ipc
+        python: '3.4'
+        executable: pip3
+    i3_focus_last_bin: "{{ dotfiles_dir }}/i3_focus_last.py"
+  tasks:
+    - name: Install packages
+      with_items: "{{ packages }}"
+      become: true
+      dnf:
+        name: "{{ item }}"
+        state: present
+    - name: Create links
+      with_items:
+        - .vimrc
+        - .vimrc_youcompleteme
+        - .bashrc
+        - .xinitrc
+        - .inputrc
+      file:
+        state: link
+        src: "{{ dotfiles_dir ~ '/' ~ item.src|default(item) }}"
+        dest: "{{ home ~ '/' ~ item.dest|default(item) }}"
+    - name: Create directorys
+      with_items:
+        - "{{ virtualenv_base }}"
+      file:
+        state: directory
+        path: "{{ item }}"
+    - name: Create virtualenvs
+      with_subelements:
+        - "{{ virtualenvs }}"
+        - packages
+      pip:
+        name: "{{ item.1 }}"
+        executable: "{{ item.1.executable|default(omit)}}"
+        virtualenv: "{{virtualenv_base }}/{{ item.0.name }}"
+        virtualenv_python: "python{{ item.0.python }}"
+    - name: Deploy templates
+      with_items:
+        - .xinitrc
+        - src: i3_config
+          dest: .config/i3/config
+      template:
+        src: "templates/{{ item.src|default(item) }}.j2"
+        dest: "{{ home ~ '/' ~ item.dest|default(item) }}"
