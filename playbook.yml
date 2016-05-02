@@ -3,7 +3,7 @@
   gather_facts: false
   vars:
     home: /home/alvaro
-    dotfiles_dir: "{{ home }}/.dotfiles"
+    dotfiles_dir: "{{ playbook_dir }}"
     virtualenv_base: "{{ home }}/.venvs"
     packages:
       - python3-pip

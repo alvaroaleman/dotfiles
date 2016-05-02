@@ -11,6 +11,8 @@
 
 exec {{ virtualenv_base }}/i3_focus_last/bin/python {{ i3_focus_last_bin }}
 exec start-pulseaudio-x11
+exec ipv6
+exec {{ playbook_dir}}/bin/dpms_checker.sh
 
 #set $mod Mod4
 set $mod Mod1
